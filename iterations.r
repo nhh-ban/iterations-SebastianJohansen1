@@ -16,15 +16,12 @@ library(yaml)
 source("functions/GQL_function.r")
 
 # The URL we will use is stored below: 
-
 configs <- 
   read_yaml("vegvesen_configs.yml")
-
 
 gql_metadata_qry <- read_file("gql-queries/station_metadata.gql")
 
 # Let's try submitting the query: 
-
 stations_metadata <-
   GQL(
     query=gql_metadata_qry,
@@ -33,12 +30,12 @@ stations_metadata <-
 
 
 #### 2: Transforming metadata
-
 source("functions/data_transformations.r")
 
 stations_metadata_df <- 
   stations_metadata %>% 
   transform_metadata_to_df(.)
+head(stations_metadata_df)
 
 
 #### 3: Testing metadata
@@ -47,7 +44,6 @@ test_stations_metadata(stations_metadata_df)
 
 
 ### 5: Final volume query: 
-
 source("gql-queries/vol_qry.r")
 
 stations_metadata_df %>% 
