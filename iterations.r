@@ -9,6 +9,7 @@ library(lubridate)
 library(anytime)
 library(readr)
 library(yaml)
+library(glue)
 
 #### 1: Beginning of script
 
@@ -60,6 +61,37 @@ stations_metadata_df %>%
   geom_line() + 
   theme_classic()
 
+
+### 6: Final volume query with station name:
+
+# First we save the selected station to extract the station name
+selected_station <- stations_metadata_df %>% 
+  filter(latestData > Sys.Date() - days(7)) %>% 
+  sample_n(1)
+
+# Extracting station name
+station_name <- selected_station$name
+
+# Extracting the volume data
+vol_data <- vol_qry(
+  id = selected_station$id,
+  from = to_iso8601(selected_station$latestData, -4),
+  to = to_iso8601(selected_station$latestData, 0)
+)
+
+# Creating the plot  
+vol_data %>% 
+  GQL(., .url = configs$vegvesen_url) %>%
+  transform_volumes() %>% 
+  ggplot(aes(x = from, y = volume)) + 
+  geom_line(linewidth = 1, colour = "darkblue") + 
+  labs(
+    title = "Traffic Volume Over Time",
+    subtitle = paste("Name of Traffic Station: ", station_name),
+    x = "Date",
+    y = "Volume of Cars"
+  ) +
+  theme_classic()
 
 
 
